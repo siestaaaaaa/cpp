@@ -4,16 +4,16 @@
 #include <iostream>
 
 namespace lx {
-class string {
-  char* str_ = nullptr;
-  size_t size_ = 0;
-  size_t capacity_ = 0;
+class String {
+  char* str_{};
+  size_t size_{};
+  size_t capacity_{};
 
  public:
-  typedef char* iterator;
-  typedef const char* const_iterator;
+  using iterator = char*;
+  using const_iterator = const char*;
 
-  string(const char* str = "") {
+  String(const char* str = "") {
     if (str != nullptr) {
       size_ = strlen(str);
       capacity_ = size_;
@@ -22,55 +22,59 @@ class string {
     }
   }
 
-  void swap(string& s) {
-    std::swap(size_, s.size_);
-    std::swap(capacity_, s.capacity_);
-    std::swap(str_, s.str_);
+  void swap(String& other) {
+    std::swap(str_, other.str_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
   }
 
-  string(const string& s) {
-    string tmp(s.str_);
+  String(const String& other) {
+    String tmp(other.str_);
     swap(tmp);
   }
 
-  string(string&& s) { swap(s); }
+  String(String&& other) { swap(other); }
 
-  string& operator=(string tmp) {
-    swap(tmp);
-    return *this;
-  }
-
-  ~string() {
+  ~String() {
     delete[] str_;
     str_ = nullptr;
     size_ = capacity_ = 0;
   }
 
-  void push_back(char ch) {
-    if (size_ == capacity_) reserve(capacity_ == 0 ? 4 : capacity_ * 2);
+  String& operator=(String tmp) {
+    if (this != &tmp) {
+      swap(tmp);
+    }
+    return *this;
+  }
 
+  void push_back(char ch) {
+    if (size_ == capacity_) {
+      reserve(capacity_ == 0 ? 4 : capacity_ * 2);
+    }
     str_[size_++] = ch;
   }
 
   void append(const char* str) {
     size_t len = strlen(str);
-    if (size_ + len > capacity_) reserve(size_ + len);
-
+    if (size_ + len > capacity_) {
+      reserve(size_ + len);
+    }
     strcpy(str_ + size_, str);
     size_ += len;
   }
 
-  string& operator+=(char ch) {
+  String& operator+=(char ch) {
     push_back(ch);
     return *this;
   }
 
-  string& operator+=(const char* str) {
+  String& operator+=(const char* str) {
     append(str);
     return *this;
   }
 
-  string& operator+=(string s) {
+  String& operator+=(String s) {
     append(s.str_);
     size_ += s.size_;
     return *this;
@@ -92,19 +96,23 @@ class string {
   void reserve(size_t n) {
     if (n > capacity_) {
       char* tmp = new char[n + 1]{};
-      strcpy(tmp, str_);
-      delete[] str_;
+      if(str_) {
+        strcpy(tmp, str_);
+        delete[] str_;
+      }
       str_ = tmp;
       capacity_ = n;
     }
   }
 
   void resize(size_t n, char ch = '\0') {
-    if (n <= size_)
+    if (n <= size_) {
       size_ = n;
-    else {
+    } else {
       reserve(n);
-      while (size_ < n) str_[size_++] = ch;
+      while (size_ < n) {
+        str_[size_++] = ch;
+      }
     }
     str_[n] = '\0';
   }
@@ -121,47 +129,70 @@ class string {
     return str_[pos];
   }
 
-  bool operator<(const string& s) const { return strcmp(str_, s.str_) < 0; }
+  friend bool operator<(const String& lhs, const String& rhs) {
+    return strcmp(lhs.str_, rhs.str_) < 0;
+  }
 
-  bool operator==(const string& s) const { return strcmp(str_, s.str_) == 0; }
+  friend bool operator>(const String& lhs, const String& rhs) {
+    return strcmp(lhs.str_, rhs.str_) > 0;
+  }
 
-  bool operator>(const string& s) const { return strcmp(str_, s.str_) > 0; }
+  friend bool operator==(const String& lhs, const String& rhs) {
+    return strcmp(lhs.str_, rhs.str_) == 0;
+  }
 
-  bool operator<=(const string& s) const { return !(*this > s); }
+  friend bool operator!=(const String& lhs, const String& rhs) {
+    return !(lhs == rhs);
+  }
 
-  bool operator>=(const string& s) const { return !(*this < s); }
+  friend bool operator<=(const String& lhs, const String& rhs) {
+    return !(lhs > rhs);
+  }
 
-  bool operator!=(const string& s) const { return !(*this == s); }
+  friend bool operator>=(const String& lhs, const String& rhs) {
+    return !(lhs < rhs);
+  }
 
   size_t find(char ch, size_t pos = 0) const {
-    for (size_t i = pos; i < size_; i++)
-      if (str_[i] == ch) return i;
+    for (size_t i = pos; i < size_; i++) {
+      if (str_[i] == ch) {
+        return i;
+      }
+    }
     return -1;
   }
 
   size_t find(const char* str, size_t pos = 0) const {
     const char* p = strstr(str_ + pos, str);
-
-    if (p != nullptr) return p - str_;
+    if (p != nullptr) {
+      return p - str_;
+    }
     return -1;
   }
 
-  string substr(size_t pos, size_t len = -1) const {
-    string res;
+  String substr(size_t pos, size_t len = -1) const {
+    String res;
     if (len == -1 || pos + len >= size_) {
       len = size_ - pos;
       res.reserve(len);
-      for (size_t i = pos; i < size_; i++) res += str_[i];
+      for (size_t i = pos; i < size_; i++) {
+        res += str_[i];
+      }
     } else {
       res.reserve(len);
-      for (size_t i = pos; i < pos + len; i++) res += str_[i];
+      for (size_t i = pos; i < pos + len; i++) {
+        res += str_[i];
+      }
     }
     return res;
   }
 
   void insert(size_t pos, char ch) {
     assert(pos >= 0 && pos <= size_);
-    if (size_ == capacity_) reserve(capacity_ == 0 ? 4 : capacity_ * 2);
+
+    if (size_ == capacity_) {
+      reserve(capacity_ == 0 ? 4 : capacity_ * 2);
+    }
 
     size_t end = size_;
     while (end != pos) {
@@ -172,35 +203,40 @@ class string {
     size_++;
   }
 
-  void insert(size_t pos, const char* s) {
+  void insert(size_t pos, const char* str) {
     assert(pos >= 0 && pos <= size_);
 
-    size_t len = strlen(s);
-    if (size_ + len > capacity_) reserve(size_ + len);
+    size_t len = strlen(str);
+    if (size_ + len > capacity_) {
+      reserve(size_ + len);
+    }
 
     size_t end = size_;
     while (end != pos) {
       str_[end + len - 1] = str_[end - 1];
       --end;
     }
-    for (size_t i = 0; i < len; i++) str_[pos + i] = s[i];
+    for (size_t i = 0; i < len; i++) {
+      str_[pos + i] = str[i];
+    }
     size_ += len;
   }
 
   void erase(size_t pos, size_t len = -1) {
     assert(pos >= 0 && pos < size_);
-    if (len == -1 || pos + len >= size_)
-      size_ = pos;
-    else {
-      for (size_t i = 0; i < size_ - len; i++)
-        if (pos + len + i < size_)
-          str_[pos + i] = str_[pos + len + i];
-        else
-          break;
 
+    if (len == -1 || pos + len >= size_) {
+      size_ = pos;
+    } else {
+      for (size_t i = 0; i < size_ - len; i++) {
+        if (pos + len + i < size_) {
+          str_[pos + i] = str_[pos + len + i];
+        } else {
+          break;
+        }
+      }
       size_ -= len;
     }
-
     str_[size_] = '\0';
   }
 
@@ -213,16 +249,18 @@ class string {
   const_iterator end() const { return str_ + size_; }
 };
 
-std::ostream& operator<<(std::ostream& out, const string& s) {
-  for (const auto ch : s) out << ch;
+std::ostream& operator<<(std::ostream& out, const String& s) {
+  for (const auto ch : s) {
+    out << ch;
+  }
   return out;
 }
 
-std::istream& operator>>(std::istream& in, string& s) {
+std::istream& operator>>(std::istream& in, String& s) {
   s.clear();
 
   char ch = in.get();
-  while (ch != ' ' && ch != '\n') {
+  while (!isspace(ch)) {
     s += ch;
     ch = in.get();
   }
@@ -231,10 +269,10 @@ std::istream& operator>>(std::istream& in, string& s) {
 }
 
 void test() {
-  string s;
+  String s;
   s += '1';
   s += "2345";
-  s += string(s);
+  s += String(s);
   std::cout << s << '\n';
 }
 }  // namespace lx

@@ -4,22 +4,23 @@
 #include <iostream>
 
 namespace lx {
-template <class T>
+template <typename T>
 class vector {
-  T* start_ = nullptr;
-  T* finish_ = nullptr;
-  T* end_of_storage_ = nullptr;
+  T* start_{};
+  T* finish_{};
+  T* end_of_storage_{};
 
  public:
-  typedef T* iterator;
-  typedef const T* const_iterator;
+  using iterator = T*;
+  using const_iterator = const T*;
 
   vector() = default;
 
-  vector(size_t n, const T& val = T()) {
+  vector(size_t n, const T& val = T{}) {
     reserve(n);
-
-    while (n--) push_back(val);
+    while (n--) {
+      push_back(val);
+    }
   }
 
   ~vector() {
@@ -42,28 +43,29 @@ class vector {
   }
 
   vector<T>& operator=(vector<T> tmp) {
-    swap(tmp);
+    if (this != &tmp) {
+      swap(tmp);
+    }
     return *this;
   }
 
   void reserve(size_t n) {
     if (n > capacity()) {
       T* tmp = new T[n];
-      if (start_ != nullptr) {
+      if (start_) {
         memcpy(tmp, start_, sizeof(T) * size());
         delete[] start_;
       }
-
       finish_ = tmp + size();
       start_ = tmp;
       end_of_storage_ = start_ + n;
     }
   }
 
-  void resize(size_t n, const T& val = T()) {
-    if (n <= size())
+  void resize(size_t n, const T& val = T{}) {
+    if (n <= size()) {
       finish_ = start_ + n;
-    else {
+    } else {
       reserve(n);
       while (finish_ < start_ + n) {
         *finish_++ = val;
@@ -142,6 +144,8 @@ void test() {
   v.push_back(4);
   v.push_back(5);
 
-  for (auto x : v) std::cout << x << '\n';
+  for (auto x : v) {
+    std::cout << x << '\n';
+  }
 }
 }  // namespace lx

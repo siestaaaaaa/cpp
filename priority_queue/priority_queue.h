@@ -3,49 +3,49 @@
 #include <vector>
 
 namespace lx {
-template <class T>
+template <typename T>
 struct Less {
-  bool operator()(const T& x, const T& y) { return x < y; }
+  bool operator()(const T& x, const T& y) const { return x < y; }
 };
 
-template <class T>
+template <typename T>
 struct Greater {
-  bool operator()(const T& x, const T& y) { return x > y; }
+  bool operator()(const T& x, const T& y) const { return x > y; }
 };
 
-template <class T, class Container = std::vector<T>, class Compare = Less<T>>
-class priority_queue {
+template <typename T, typename Container = std::vector<T>, typename Compare = Less<T>>
+class PriorityQueue {
   Container con_;
 
-  void up(int child) {
+  void up(int index) {
     Compare cmp;
 
-    int parent = (child - 1) / 2;
-    while (child >= 0) {
-      if (cmp(con_[parent], con_[child])) {
-        swap(con_[child], con_[parent]);
-        child = parent;
-        parent = (child - 1) / 2;
+    int parent = (index - 1) / 2;
+    while (index >= 0) {
+      if (cmp(con_[parent], con_[index])) {
+        std::swap(con_[index], con_[parent]);
+        index = parent;
+        parent = (index - 1) / 2;
       } else {
         break;
       }
     }
   }
 
-  void down(int parent) {
+  void down(int index) {
     Compare cmp;
 
-    int child = parent * 2 + 1;
+    int child = index * 2 + 1;
     int n = con_.size();
     while (child < n) {
       if (child + 1 < n && cmp(con_[child], con_[child + 1])) {
         ++child;
       }
 
-      if (cmp(con_[parent], con_[child])) {
-        swap(con_[child], con_[parent]);
-        parent = child;
-        child = parent * 2 + 1;
+      if (cmp(con_[index], con_[child])) {
+        std::swap(con_[child], con_[index]);
+        index = child;
+        child = index * 2 + 1;
       } else {
         break;
       }
@@ -74,7 +74,7 @@ class priority_queue {
 };
 
 void test1() {
-  priority_queue<int> pq;
+  PriorityQueue<int> pq;
   pq.push(1);
   pq.push(5);
   pq.push(4);
@@ -89,7 +89,7 @@ void test1() {
 }
 
 void test2() {
-  priority_queue<int, std::vector<int>, Greater<int>> pq;
+  PriorityQueue<int, std::vector<int>, Greater<int>> pq;
   pq.push(1);
   pq.push(5);
   pq.push(4);

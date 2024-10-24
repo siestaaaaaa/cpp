@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
-#include <list>
+#include <deque>
 
 namespace lx {
-template <class T, class Container = std::list<T>>
+template <typename T, typename Container = std::deque<T>>
 class queue {
   Container con_;
 

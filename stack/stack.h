@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
-#include <vector>
+#include <deque>
 
 namespace lx {
-template <class T, class Container = std::vector<T>>
+template <typename T, typename Container = std::deque<T>>
 class stack {
   Container con_;
 
