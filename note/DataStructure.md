@@ -58,7 +58,7 @@
 ```cpp
 template<typename T>
 class heap {
-	std::vector<T> a; //完全二叉树一般用数组存储，用下标关系找到父结点和子结点
+    std::vector<T> a; //完全二叉树一般用数组存储，用下标关系找到父结点和子结点
 };
 ```
 
@@ -108,7 +108,7 @@ void heapify() {
     int n = a.size();
     for (int i = (n - 1 - 1) / 2; i >= 0; i--) {
     	down(i, n);
-	}
+    }
 }
 ```
 
